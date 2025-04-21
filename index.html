@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Counter with Sparkle & Blast</title>
+  <title>Counter App</title>
   <style>
     * {
       margin: 0;
@@ -17,8 +17,17 @@
       justify-content: center;
       align-items: center;
       min-height: 100vh;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.light {
       background-color: #f8f9fa;
-      overflow: hidden;
+      color: #333;
+    }
+
+    body.dark {
+      background-color: #121212;
+      color: #f1f1f1;
     }
 
     .container {
@@ -29,11 +38,15 @@
       text-align: center;
       width: 320px;
       overflow: hidden;
-      position: relative;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark .container {
+      background-color: #1e1e1e;
+      color: #f1f1f1;
     }
 
     .app-title {
-      color: #333;
       margin-bottom: 30px;
       font-weight: 700;
       font-size: 28px;
@@ -45,7 +58,6 @@
       color: #5e60ce;
       margin-bottom: 30px;
       transition: all 0.3s ease;
-      position: relative;
     }
 
     .counter-value.pulse {
@@ -62,6 +74,7 @@
       display: flex;
       gap: 15px;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .btn {
@@ -74,6 +87,7 @@
       cursor: pointer;
       transition: all 0.2s ease;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      min-width: 100px;
     }
 
     .increment-btn {
@@ -86,78 +100,73 @@
       color: white;
     }
 
-    .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    /* Toggle Switch Styling */
+    .theme-toggle-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
     }
 
-    .btn:active {
-      transform: translateY(0);
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
     }
 
-    .btn.clicked {
-      animation: click 0.3s ease;
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
     }
 
-    @keyframes click {
-      0% { transform: scale(1); }
-      50% { transform: scale(0.95); }
-      100% { transform: scale(1); }
-    }
-
-    .sparkle {
+    .slider {
       position: absolute;
-      width: 8px;
-      height: 8px;
-      background: radial-gradient(circle, white, #ffd700);
-      border-radius: 50%;
-      pointer-events: none;
-      animation: sparkle 0.6s ease-out forwards;
-      z-index: 10;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 34px;
     }
 
-    @keyframes sparkle {
-      0% {
-        transform: translate(0, 0) scale(1);
-        opacity: 1;
-      }
-      100% {
-        transform: translate(var(--dx), var(--dy)) scale(0.5);
-        opacity: 0;
-      }
-    }
-
-    .blast {
+    .slider:before {
       position: absolute;
-      width: 20px;
-      height: 20px;
+      content: "";
+      height: 26px;
+      width: 26px;
       border-radius: 50%;
-      background: rgba(255, 0, 0, 0.5);
-      transform: scale(1);
-      animation: blast 0.5s ease-out forwards;
-      z-index: 9;
-      pointer-events: none;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: 0.4s;
     }
 
-    @keyframes blast {
-      0% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(8);
-      }
+    input:checked + .slider {
+      background-color: #5e60ce;
     }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
   </style>
 </head>
-<body>
+<body class="light">
   <div class="container">
-    <h1 class="app-title">Counter</h1>
+    <h1 class="app-title">Counter App</h1>
     <div class="counter-value" id="counter">0</div>
     <div class="buttons">
       <button class="btn increment-btn" id="increment-btn">Increment</button>
       <button class="btn reset-btn" id="reset-btn">Reset</button>
+    </div>
+    <div class="theme-toggle-container">
+      <label class="switch">
+        <input type="checkbox" id="theme-toggle-checkbox">
+        <span class="slider"></span>
+      </label>
     </div>
   </div>
 
@@ -165,6 +174,7 @@
     const counterElement = document.getElementById('counter');
     const incrementButton = document.getElementById('increment-btn');
     const resetButton = document.getElementById('reset-btn');
+    const toggleThemeCheckbox = document.getElementById('theme-toggle-checkbox');
     let count = 0;
 
     function animateButton(button) {
@@ -181,44 +191,11 @@
       }, 400);
     }
 
-    function createSparkles(x, y, parent = document.body) {
-      const sparkleCount = 15;
-      for (let i = 0; i < sparkleCount; i++) {
-        const sparkle = document.createElement('div');
-        sparkle.classList.add('sparkle');
-        sparkle.style.left = `${x}px`;
-        sparkle.style.top = `${y}px`;
-
-        const dx = (Math.random() - 0.5) * 100 + 'px';
-        const dy = (Math.random() - 0.5) * 100 + 'px';
-        sparkle.style.setProperty('--dx', dx);
-        sparkle.style.setProperty('--dy', dy);
-
-        parent.appendChild(sparkle);
-        setTimeout(() => sparkle.remove(), 600);
-      }
-    }
-
-    function createBlast(x, y, parent = document.body) {
-      const blast = document.createElement('div');
-      blast.classList.add('blast');
-      blast.style.left = `${x - 10}px`; // center alignment
-      blast.style.top = `${y - 10}px`;
-      parent.appendChild(blast);
-      setTimeout(() => blast.remove(), 500);
-    }
-
     incrementButton.addEventListener('click', () => {
       count++;
       counterElement.textContent = count;
       animateButton(incrementButton);
       animateCounter();
-
-      const rectBtn = incrementButton.getBoundingClientRect();
-      createSparkles(rectBtn.left + rectBtn.width / 2, rectBtn.top + rectBtn.height / 2);
-
-      const rectNum = counterElement.getBoundingClientRect();
-      createSparkles(rectNum.left + rectNum.width / 2, rectNum.top + rectNum.height / 2);
     });
 
     resetButton.addEventListener('click', () => {
@@ -226,15 +203,11 @@
       counterElement.textContent = count;
       animateButton(resetButton);
       animateCounter();
+    });
 
-      const rectBtn = resetButton.getBoundingClientRect();
-      const rectNum = counterElement.getBoundingClientRect();
-
-      createSparkles(rectBtn.left + rectBtn.width / 2, rectBtn.top + rectBtn.height / 2);
-      createSparkles(rectNum.left + rectNum.width / 2, rectNum.top + rectNum.height / 2);
-
-      createBlast(rectBtn.left + rectBtn.width / 2, rectBtn.top + rectBtn.height / 2);
-      createBlast(rectNum.left + rectNum.width / 2, rectNum.top + rectNum.height / 2);
+    toggleThemeCheckbox.addEventListener('change', () => {
+      document.body.classList.toggle('dark');
+      document.body.classList.toggle('light');
     });
   </script>
 </body>
