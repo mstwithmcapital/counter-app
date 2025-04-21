@@ -38,6 +38,7 @@
       text-align: center;
       width: 320px;
       overflow: hidden;
+      position: relative;
       transition: background-color 0.3s, color 0.3s;
     }
 
@@ -46,14 +47,8 @@
       color: #f1f1f1;
     }
 
-    .app-title {
-      margin-bottom: 30px;
-      font-weight: 700;
-      font-size: 28px;
-    }
-
     .counter-value {
-      font-size: 120px;
+      font-size: 180px; /* Increased font size */
       font-weight: 700;
       color: #5e60ce;
       margin-bottom: 30px;
@@ -64,10 +59,29 @@
       animation: pulse 0.4s ease;
     }
 
+    .counter-value.sparkle {
+      animation: sparkle 0.6s infinite;
+    }
+
+    .counter-value.blast {
+      animation: blast 0.4s ease;
+    }
+
     @keyframes pulse {
       0% { transform: scale(1); }
       50% { transform: scale(1.1); }
       100% { transform: scale(1); }
+    }
+
+    @keyframes sparkle {
+      0% { text-shadow: 0 0 10px #fff, 0 0 20px #ff00ff, 0 0 30px #ff00ff, 0 0 40px #ff00ff, 0 0 50px #ff00ff, 0 0 75px #ff00ff; }
+      100% { text-shadow: 0 0 20px #fff, 0 0 40px #ff00ff, 0 0 60px #ff00ff, 0 0 80px #ff00ff, 0 0 100px #ff00ff, 0 0 150px #ff00ff; }
+    }
+
+    @keyframes blast {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
     .buttons {
@@ -102,9 +116,9 @@
 
     /* Toggle Switch Styling */
     .theme-toggle-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
+      position: absolute;
+      top: 20px;
+      right: 20px;
     }
 
     .switch {
@@ -156,7 +170,6 @@
 </head>
 <body class="light">
   <div class="container">
-    <h1 class="app-title">Counter App</h1>
     <div class="counter-value" id="counter">0</div>
     <div class="buttons">
       <button class="btn increment-btn" id="increment-btn">Increment</button>
@@ -191,11 +204,26 @@
       }, 400);
     }
 
+    function sparkleCounter() {
+      counterElement.classList.add('sparkle');
+      setTimeout(() => {
+        counterElement.classList.remove('sparkle');
+      }, 600);
+    }
+
+    function blastCounter() {
+      counterElement.classList.add('blast');
+      setTimeout(() => {
+        counterElement.classList.remove('blast');
+      }, 400);
+    }
+
     incrementButton.addEventListener('click', () => {
       count++;
       counterElement.textContent = count;
       animateButton(incrementButton);
       animateCounter();
+      sparkleCounter();  // Add sparkling effect on increment
     });
 
     resetButton.addEventListener('click', () => {
@@ -203,6 +231,7 @@
       counterElement.textContent = count;
       animateButton(resetButton);
       animateCounter();
+      blastCounter();  // Add blasting effect on reset
     });
 
     toggleThemeCheckbox.addEventListener('change', () => {
