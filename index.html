@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Counter with Sparkle & Blast</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f8f9fa;
+      overflow: hidden;
+    }
+
+    .container {
+      background-color: white;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      text-align: center;
+      width: 320px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .app-title {
+      color: #333;
+      margin-bottom: 30px;
+      font-weight: 700;
+      font-size: 28px;
+    }
+
+    .counter-value {
+      font-size: 120px;
+      font-weight: 700;
+      color: #5e60ce;
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .counter-value.pulse {
+      animation: pulse 0.4s ease;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .buttons {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .btn {
+      flex: 1;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 0;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .increment-btn {
+      background-color: #5e60ce;
+      color: white;
+    }
+
+    .reset-btn {
+      background-color: #f56565;
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.clicked {
+      animation: click 0.3s ease;
+    }
+
+    @keyframes click {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.95); }
+      100% { transform: scale(1); }
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle, white, #ffd700);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: sparkle 0.6s ease-out forwards;
+      z-index: 10;
+    }
+
+    @keyframes sparkle {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--dx), var(--dy)) scale(0.5);
+        opacity: 0;
+      }
+    }
+
+    .blast {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(255, 0, 0, 0.5);
+      transform: scale(1);
+      animation: blast 0.5s ease-out forwards;
+      z-index: 9;
+      pointer-events: none;
+    }
+
+    @keyframes blast {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(8);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="app-title">Counter</h1>
+    <div class="counter-value" id="counter">0</div>
+    <div class="buttons">
+      <button class="btn increment-btn" id="increment-btn">Increment</button>
+      <button class="btn reset-btn" id="reset-btn">Reset</button>
+    </div>
+  </div>
+
+  <script>
+    const counterElement = document.getElementById('counter');
+    const incrementButton = document.getElementById('increment-btn');
+    const resetButton = document.getElementById('reset-btn');
+    let count = 0;
+
+    function animateButton(button) {
+      button.classList.add('clicked');
+      setTimeout(() => {
+        button.classList.remove('clicked');
+      }, 300);
+    }
+
+    function animateCounter() {
+      counterElement.classList.add('pulse');
+      setTimeout(() => {
+        counterElement.classList.remove('pulse');
+      }, 400);
+    }
+
+    function createSparkles(x, y, parent = document.body) {
+      const sparkleCount = 15;
+      for (let i = 0; i < sparkleCount; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.classList.add('sparkle');
+        sparkle.style.left = `${x}px`;
+        sparkle.style.top = `${y}px`;
+
+        const dx = (Math.random() - 0.5) * 100 + 'px';
+        const dy = (Math.random() - 0.5) * 100 + 'px';
+        sparkle.style.setProperty('--dx', dx);
+        sparkle.style.setProperty('--dy', dy);
+
+        parent.appendChild(sparkle);
+        setTimeout(() => sparkle.remove(), 600);
+      }
+    }
+
+    function createBlast(x, y, parent = document.body) {
+      const blast = document.createElement('div');
+      blast.classList.add('blast');
+      blast.style.left = `${x - 10}px`; // center alignment
+      blast.style.top = `${y - 10}px`;
+      parent.appendChild(blast);
+      setTimeout(() => blast.remove(), 500);
+    }
+
+    incrementButton.addEventListener('click', () => {
+      count++;
+      counterElement.textContent = count;
+      animateButton(incrementButton);
+      animateCounter();
+
+      const rectBtn = incrementButton.getBoundingClientRect();
+      createSparkles(rectBtn.left + rectBtn.width / 2, rectBtn.top + rectBtn.height / 2);
+
+      const rectNum = counterElement.getBoundingClientRect();
+      createSparkles(rectNum.left + rectNum.width / 2, rectNum.top + rectNum.height / 2);
+    });
+
+    resetButton.addEventListener('click', () => {
+      count = 0;
+      counterElement.textContent = count;
+      animateButton(resetButton);
+      animateCounter();
+
+      const rectBtn = resetButton.getBoundingClientRect();
+      const rectNum = counterElement.getBoundingClientRect();
+
+      createSparkles(rectBtn.left + rectBtn.width / 2, rectBtn.top + rectBtn.height / 2);
+      createSparkles(rectNum.left + rectNum.width / 2, rectNum.top + rectNum.height / 2);
+
+      createBlast(rectBtn.left + rectBtn.width / 2, rectBtn.top + rectBtn.height / 2);
+      createBlast(rectNum.left + rectNum.width / 2, rectNum.top + rectNum.height / 2);
+    });
+  </script>
+</body>
+</html>
